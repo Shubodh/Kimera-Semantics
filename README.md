@@ -1,5 +1,11 @@
 # Kimera-Semantics
 
+## GraphVPR project documentation
+
+1. For already generated semantic-metric mesh: Go to `custom_graphVPR/` and run `open3d_semantic-mesh-inspection.py`. This will print out a lot of information to the screen along with Open3D's visualizations, which will help you quickly understand the relevant parts of Kimera-Semantics that are useful for our graphVPR project.
+2. Run Kimera-Semantics on new scene altogether: There is no need to edit Kimera-Semantics code for all of our tasks. Using ROS topics, services etc properly meets all of our needs. See [Notion link](https://www.notion.so/saishubodh/Shubodh-s-personal-on-Kimera-Semantics-ROS-extraction-ROS-Commands-c5dc07c25e4b41aea70f8ec74e1fe47b) for list of useful ROS commands for our tasks.
+
+
 <div align="center">
     <img src="docs/media/kimera_semantics.gif">
 </div>
