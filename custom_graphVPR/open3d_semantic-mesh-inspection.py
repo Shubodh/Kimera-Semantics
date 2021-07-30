@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import open3d as o3d #version: 0.10.0.0
 
 kimera_ros_path = "../kimera_semantics_ros/"
-mesh_prefix = "../kimera_semantics_ros/mesh_results/tesse_shubodh_Inspiron_15_7000_Gaming_" 
+mesh_prefix = "../kimera_semantics_ros/graphVPR_mesh_results/tesse_shubodh_Inspiron_15_7000_Gaming_" 
 
 def read_cfg_csv(filename):
     #If filename is txt of the form: category, red, green, blue, alpha, id
@@ -86,6 +86,7 @@ def extract_mesh_labels(semantic_pcd_filename, rgb_to_cat):
 def pcd_info(filename, viz=False):
     pcd = o3d.io.read_point_cloud(filename)
     if viz == True:
+        print(f"\n\nSHOWING FULL PCD:\n\n")
         o3d.visualization.draw_geometries([pcd])
     pcd_colors = np.asarray(pcd.colors)
     uniq_clr, indices = np.unique(pcd_colors*255, axis=0, return_index=True)
@@ -113,10 +114,9 @@ def pcd_show_cat(filename, cat, viz=False):
     #pcd_output.colors = o3d.utility.Vector3dVector(pcd_colors_cat) #TODO: Doesn't seem to work in all cases.. Want to show it as per original colors
     
     if viz == True:
-        print(pcd_points_cat.shape)
-        print(f"\n\nSHOWING FULL PCD:\n\n")
-        o3d.visualization.draw_geometries([pcd])
-        print(f"\n\nSHOWING SEGMENTED PCD with R+G+B ID - {str(cat)}:\n\n")
+        #print(f"\n\nSHOWING FULL PCD:\n\n")
+        #o3d.visualization.draw_geometries([pcd])
+        print(f"\n\nSHOWING **SEMANTIC** SEGMENTED PCD with R+G+B ID - {str(cat)}:\n\n")
         o3d.visualization.draw_geometries([pcd_output])
     return pcd_output 
 
@@ -131,6 +131,7 @@ def dbscan_clustering(pcd):
     colors = plt.get_cmap("tab20")(labels / (max_label if max_label > 0 else 1))
     colors[labels < 0] = 0
     pcd.colors = o3d.utility.Vector3dVector(colors[:, :3])
+    print(f"\n\nSHOWING **INSTANCE** SEGMENTED PCD \n\n")
     o3d.visualization.draw_geometries([pcd])
 
 def print_general(num_sem_cat_mesh, rgb_to_cat, num_instances, num_lines):
@@ -150,17 +151,19 @@ def print_general(num_sem_cat_mesh, rgb_to_cat, num_instances, num_lines):
 if __name__ == '__main__':
     mesh_name = "26094_3367494325221832115.ply"
 
-    num_sem_cat_mesh = pcd_info(mesh_prefix + mesh_name, viz=False)
+    num_sem_cat_mesh = pcd_info(mesh_prefix + mesh_name, viz=True)
     full_dict, num_lines = read_cfg_csv(kimera_ros_path + "cfg/tesse_multiscene_office1_segmentation_mapping.csv") 
     rgb_to_cat = fulldict_to_mapping(full_dict)
     _, dict_meshlabels, num_instances = extract_mesh_labels(mesh_prefix + mesh_name, rgb_to_cat)
 
-    #print_general(num_sem_cat_mesh, rgb_to_cat, num_instances, num_lines)
+    print_general(num_sem_cat_mesh, rgb_to_cat, num_instances, num_lines)
 
     Chairs = 1022550; Floor = 124133141; Table = 54176239
-    pcd_segmented = pcd_show_cat(mesh_prefix+mesh_name, Chairs, viz=False)
+    pcd_segmented = pcd_show_cat(mesh_prefix+mesh_name, Chairs, viz=True)
 
     dbscan_clustering(pcd_segmented)
-    #TODO: Just using Open3D's dbscan for clustering. However, the remaining task is to 
-    # do what is suggested exactly in the 3DSceneGraphs paper (using PCL library, not Open3D)
-    # and accurately go from semantic segmentation to instance segmentation.
+    #TODO: Just using Open3D's dbscan for clustering with a bit of hyperparameter tuning. 
+    # However, the remaining task is to  do what is suggested exactly in the
+    #  3DSceneGraphs paper (1. using PCL library, not Open3D; 2. Euclidean instead of DBSCAN
+    # See paper for more details.)
+    # and accurately do clustering i.e. going from semantic segmentation to instance segmentation.
