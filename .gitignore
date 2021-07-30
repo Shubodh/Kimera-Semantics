@@ -2,6 +2,7 @@
 *.idea
 **/mesh_results/*
 **/tsdf_results/*
+**/generated_data/*
 *.ccls*
 *.vscode/
 *.ipynb_checkpoints/
